@@ -130,7 +130,7 @@ def main():
         img = detector.findHands(img)
         lmlist, bbox = detector.findPosition(img)
         if len(lmlist) != 0:
-            print(lmlist[4])
+            print("checking", lmlist[4])
 
         CTime = time.time()  #current time
         fps = 1 / (CTime - PTime)  #FPS

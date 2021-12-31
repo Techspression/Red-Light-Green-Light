@@ -5,7 +5,7 @@ import os
 import HandTrackingModule as htm
 
 #######################
-brushThickness = 25
+brushThickness = 8
 eraserThickness = 100
 ########################
 
@@ -102,4 +102,9 @@ while True:
     cv2.imshow("Image", img)
     # cv2.imshow("Canvas", imgCanvas)
     # cv2.imshow("Inv", imgInv)
-    cv2.waitKey(1)
+    
+
+    # Exit button "ESC"
+    k = cv2.waitKey(1) & 0xff
+    if k == 27:
+        break
