@@ -15,7 +15,13 @@ cap = cv2.VideoCapture(0)  #for single camera devices.
 cap.set(3, 1280)
 cap.set(4, 720)
 
-detector = htm.handDetector(detectionCon=0.85, maxHands=1)
+###### motion part
+fgbg = cv2.createBackgroundSubtractorMOG2(300, 400, True)
+frameCount = 0
+####end
+
+#if not working properly add detectioncon=0.85
+detector = htm.handDetector(maxHands=1)
 xp, yp = 0, 0
 imgCanvas = np.zeros((720, 1280, 3), np.uint8)
 earse = False
@@ -25,6 +31,21 @@ while True:
     # 1. Import image
     success, img = cap.read()
     img = cv2.flip(img, 1)
+
+    ##motion part
+    if not success:
+        break
+
+    frameCount += 1
+    fgmask = fgbg.apply(img)
+    count = np.count_nonzero(fgmask)
+    # print('Frame: %d, Pixel Count: %d' % (frameCount, count))
+    if (frameCount > 1 and count > 5000):
+        print('Warning')
+        cv2.putText(img, 'Warning', (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1,
+                    (0, 0, 255), 2, cv2.LINE_AA)
+    #end
+
     # 2. Find Hand Landmarks
     img = detector.findHands(img)
     lmList, bbox = detector.findPosition(img, draw=False)
@@ -90,19 +111,19 @@ while True:
             if earse:
                 imgCanvas = np.zeros((720, 1280, 3), np.uint8)
 
-    imgGray = cv2.cvtColor(imgCanvas, cv2.COLOR_BGR2GRAY)
-    _, imgInv = cv2.threshold(imgGray, 50, 255, cv2.THRESH_BINARY_INV)
-    imgInv = cv2.cvtColor(imgInv, cv2.COLOR_GRAY2BGR)
+    # imgGray = cv2.cvtColor(imgCanvas, cv2.COLOR_BGR2GRAY)
+    # _, imgInv = cv2.threshold(imgGray, 50, 255, cv2.THRESH_BINARY_INV)
+    imgInv = cv2.cvtColor(
+        cv2.threshold(cv2.cvtColor(imgCanvas, cv2.COLOR_BGR2GRAY), 50, 255,
+                      cv2.THRESH_BINARY_INV)[1], cv2.COLOR_GRAY2BGR)
     img = cv2.bitwise_and(img, imgInv)
     img = cv2.bitwise_or(img, imgCanvas)
 
     # Setting the header image for changing color n all
     # img[0:125, 0:1280] = header
     # img = cv2.addWeighted(img,0.5,imgCanvas,0.5,0)
+
     cv2.imshow("Image", img)
-    # cv2.imshow("Canvas", imgCanvas)
-    # cv2.imshow("Inv", imgInv)
-    
 
     # Exit button "ESC"
     k = cv2.waitKey(1) & 0xff
