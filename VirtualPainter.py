@@ -12,17 +12,17 @@ eraserThickness = 100
 
 
 # Function for Red Light
-light = bool
+lights = bool
 
 
 def switch_Light():
 
-    light = False   # false for REd light    ,  by default the light is red
+    lights = False   # false for REd light    ,  by default the light is red
     seconds = random.randint(3, 10)
     time.sleep(float(seconds))
-    light = True
+    lights = True
 
-    return light
+    return lights
 
 
 light = switch_Light()
