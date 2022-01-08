@@ -3,24 +3,46 @@ import numpy as np
 import time
 import os
 import HandTrackingModule as htm
+import random
 
 #######################
 brushThickness = 8
 eraserThickness = 100
 ########################
 
+
+# Function for Red Light
+light = bool
+
+
+def switch_Light():
+
+    light = False   # false for REd light    ,  by default the light is red
+    seconds = random.randint(3, 10)
+    time.sleep(float(seconds))
+    light = True
+
+    return light
+
+
+light = switch_Light()
+print(light)
+
+# End of function
+
+
 drawColor = (255, 0, 255)
 
-cap = cv2.VideoCapture(0)  #for single camera devices.
+cap = cv2.VideoCapture(0)  # for single camera devices.
 cap.set(3, 1280)
 cap.set(4, 720)
 
-###### motion part
+# motion part
 fgbg = cv2.createBackgroundSubtractorMOG2(300, 400, True)
 frameCount = 0
-####end
+# end
 
-#if not working properly add detectioncon=0.85
+# if not working properly add detectioncon=0.85
 detector = htm.handDetector(maxHands=1)
 xp, yp = 0, 0
 imgCanvas = np.zeros((720, 1280, 3), np.uint8)
@@ -32,7 +54,7 @@ while True:
     success, img = cap.read()
     img = cv2.flip(img, 1)
 
-    ##motion part
+    # motion part
     if not success:
         break
 
@@ -44,7 +66,7 @@ while True:
         print('Warning')
         cv2.putText(img, 'Warning', (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1,
                     (0, 0, 255), 2, cv2.LINE_AA)
-    #end
+    # end
 
     # 2. Find Hand Landmarks
     img = detector.findHands(img)

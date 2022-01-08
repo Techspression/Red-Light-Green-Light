@@ -30,7 +30,7 @@ def trackingUser(video):
         frameCount += 1
         # Resize the frame
         resizedFrame = cv2.resize(frame, (0, 0), fx=0.50, fy=0.50)
-
+        
         # Get the foreground mask
         fgmask = fgbg.apply(resizedFrame)
 
