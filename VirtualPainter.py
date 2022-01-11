@@ -58,8 +58,8 @@ while True:
     #print('Frame: %d, Pixel Count: %d' % (frameCount, count))
     if curr_light == False:
         if (frameCount > 1 and count > 5000):
-            print('Warning')
-            cv2.putText(img, 'Warning', (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1,
+            print('Halu nkos bhava')
+            cv2.putText(img, 'Halu nkos bhava', (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1,
                         (0, 0, 255), 2, cv2.LINE_AA)
     # end
     if curr_light == True:
