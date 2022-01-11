@@ -5,30 +5,14 @@ import os
 import HandTrackingModule as htm
 import random
 
+
 #######################
 brushThickness = 8
 eraserThickness = 100
 ########################
 
 
-# Function for Red Light
-light = bool
-
-
-def switch_Light():
-
-    light = False   # false for REd light    ,  by default the light is red
-    seconds = random.randint(3, 10)
-    time.sleep(float(seconds))
-    light = True
-
-    return light
-
-
-light = switch_Light()
-print(light)
-
-# End of function
+curr_light = False
 
 
 drawColor = (255, 0, 255)
@@ -48,7 +32,17 @@ xp, yp = 0, 0
 imgCanvas = np.zeros((720, 1280, 3), np.uint8)
 earse = False
 
+resetTimer = 15
+
+
 while True:
+
+    if(resetTimer == 0):
+        resetTimer = random.randint(20, 35)
+        curr_light = not curr_light
+
+    else:
+        resetTimer -= 1
 
     # 1. Import image
     success, img = cap.read()
@@ -61,12 +55,20 @@ while True:
     frameCount += 1
     fgmask = fgbg.apply(img)
     count = np.count_nonzero(fgmask)
-    # print('Frame: %d, Pixel Count: %d' % (frameCount, count))
-    if (frameCount > 1 and count > 5000):
-        print('Warning')
-        cv2.putText(img, 'Warning', (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1,
-                    (0, 0, 255), 2, cv2.LINE_AA)
+    #print('Frame: %d, Pixel Count: %d' % (frameCount, count))
+    if curr_light == False:
+        if (frameCount > 1 and count > 5000):
+            print('Warning')
+            cv2.putText(img, 'Warning', (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1,
+                        (0, 0, 255), 2, cv2.LINE_AA)
     # end
+    if curr_light == True:
+        cv2.putText(img, "GREEN ", (1100, 50),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+    else:
+
+        cv2.putText(img, "RED", (1100, 50),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
 
     # 2. Find Hand Landmarks
     img = detector.findHands(img)
@@ -74,7 +76,7 @@ while True:
 
     if len(lmList) != 0:
 
-        # print(lmList)
+        # print(lmList[8][1:])  # coordinates of drawing
 
         # tip of index and middle fingers
         x1, y1 = lmList[8][1:]  # tip of index finger
