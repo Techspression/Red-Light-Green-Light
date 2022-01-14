@@ -13,14 +13,14 @@ import random
 class RedLight_GreenLight():
 
     def __init__(self):
-        self.color = (255, 0, 255)  #drawColor varaible
-        self.brushThickness = 65
+        self.color = (255, 0, 255)  # drawColor varaible
+        self.brushThickness = 20
         self.eraserThickness = 65
         self.currentLight = False
         self.resetTimer = 15
         self.eraser = False
-        self.startDrawingPosition = (0, 0)  #storing co-ordinate value , xp,yp
-        self.currentDrawingPosition = (0, 0)  #x1,y1 variable
+        self.startDrawingPosition = (0, 0)  # storing co-ordinate value , xp,yp
+        self.currentDrawingPosition = (0, 0)  # x1,y1 variable
 
     def start(self):
 
@@ -68,16 +68,16 @@ class RedLight_GreenLight():
 
             cv2.imshow("Image", self.image)
 
-            #for exiting purpose
+            # for exiting purpose
             k = cv2.waitKey(1) & 0xff
             if k == 27:
                 cam.release()
                 break
 
     def initializing(self):
-        self.hand = htm.handDetector(maxHands=1)  #detector variable
+        self.hand = htm.handDetector(maxHands=1)  # detector variable
         self.motion = cv2.createBackgroundSubtractorMOG2(300, 400,
-                                                         True)  #fgbh variable
+                                                         True)  # fgbh variable
 
     def getCAM(self):
         cap = cv2.VideoCapture(0)  # for single camera devices.
@@ -94,7 +94,8 @@ class RedLight_GreenLight():
 
     def showState(self):
         cv2.putText(self.image, ("GREEN" if self.currentLight else "RED"),
-                    (1100, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2,
+                    (1100, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, ((0, 255, 0)
+                                                              if self.currentLight else (0, 0, 255)), 2,
                     cv2.LINE_AA)
 
     def alertWarning(self, frameCount, count):
@@ -107,11 +108,11 @@ class RedLight_GreenLight():
                             cv2.LINE_AA)
 
     def modes(self, fingers):
-        #for moving
+        # for moving
         if fingers[1] and fingers[2] and all(x == False for x in fingers[3:]):
             self.startDrawingPosition = 0, 0
 
-        #for Erasing
+        # for Erasing
         elif all(x == True for x in fingers[:2]) and all(x == False
                                                          for x in fingers[2:]):
             self.color = (0, 0, 0)
@@ -127,7 +128,7 @@ class RedLight_GreenLight():
 
             self.startDrawingPosition = self.currentDrawingPosition
 
-        #for drawing
+        # for drawing
         elif (fingers[1] and all(x == False for x in fingers[2:])):
             self.color = (255, 0, 255)
             if self.startDrawingPosition == (0, 0):
@@ -151,7 +152,7 @@ class RedLight_GreenLight():
                 self.imgCanvas = np.zeros((720, 1280, 3), np.uint8)
 
         else:
-            #for all finger close check
+            # for all finger close check
             # print(self.color)
             pass
 
