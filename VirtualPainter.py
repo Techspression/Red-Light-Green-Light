@@ -66,13 +66,16 @@ class RedLight_GreenLight():
             self.image = cv2.bitwise_and(self.image, imgInv)
             self.image = cv2.bitwise_or(self.image, self.imgCanvas)
 
-            cv2.imshow("Image", self.image)
+            # cv2.imshow("Image", self.image)
 
             # for exiting purpose
             k = cv2.waitKey(1) & 0xff
             if k == 27:
                 cam.release()
                 break
+
+            #it'll return self.image toflask app
+            return self.image
 
     def initializing(self):
         self.hand = htm.handDetector(maxHands=1)  # detector variable
@@ -94,9 +97,9 @@ class RedLight_GreenLight():
 
     def showState(self):
         cv2.putText(self.image, ("GREEN" if self.currentLight else "RED"),
-                    (1100, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, ((0, 255, 0)
-                                                              if self.currentLight else (0, 0, 255)), 2,
-                    cv2.LINE_AA)
+                    (1100, 50), cv2.FONT_HERSHEY_SIMPLEX, 1,
+                    ((0, 255, 0) if self.currentLight else
+                     (0, 0, 255)), 2, cv2.LINE_AA)
 
     def alertWarning(self, frameCount, count):
         #print('Frame: %d, Pixel Count: %d' % (frameCount, count))
