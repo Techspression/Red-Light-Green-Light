@@ -1,4 +1,6 @@
+
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -7,9 +9,26 @@
   <title>Web Cam</title>
 </head>
 <body>
-  <div>
-        <h3 style="text-align: center;">Live Streaming</h3>
-        <img src="{{url_for('video_feed')}}"style="width: 50%; height=50%" alt="This is WebCam" />
-  </div>
+      <h3 style="text-align: center;">Live Streaming</h3>
+      <img src="{{url_for( 'video_feed')}}"style="width: 50%; height=50%" alt="This is WebCam" />
+  
+
+
+  <!-- video capturing    webcam  
+
+  <video id ="vid" autoplay></video>     
+  <script>
+    navigator.mediaDevices.getUserMedia({
+      video : true  
+    })
+    .then(stream => {
+      document.getElementById('vid').srcObject = stream;
+    })
+  </script>
+
+
+  done -->
+
+  
 </body>
 </html>

@@ -1,21 +1,24 @@
 from flask import Flask, render_template, Response
 import cv2
+import numpy as np
 from VirtualPainter import RedLight_GreenLight
 
 win = Flask(__name__)
 
 
 def gen_frames():
-    #main class object
+    # main class object
     user = RedLight_GreenLight()
-    while user.start():
-        #this will return frame of image
+
+    while np.any(user.start()):
+        # this will return frame of image
         frame = user.start()
+
         ret, buffer = cv2.imencode('.jpg', frame)
         frame = buffer.tobytes()
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n'
-               )  #concat frame one by one and show result
+               )  # concat frame one by one and show result
 
 
 @win.route('/')

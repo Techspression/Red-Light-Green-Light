@@ -66,15 +66,14 @@ class RedLight_GreenLight():
             self.image = cv2.bitwise_and(self.image, imgInv)
             self.image = cv2.bitwise_or(self.image, self.imgCanvas)
 
-            # cv2.imshow("Image", self.image)
-
             # for exiting purpose
             k = cv2.waitKey(1) & 0xff
             if k == 27:
                 cam.release()
+                cv2.destroyAllWindows()
                 break
 
-            #it'll return self.image toflask app
+            # it'll return self.image toflask app
             return self.image
 
     def initializing(self):
