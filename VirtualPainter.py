@@ -1,4 +1,5 @@
 import cv2
+from flask import Flask, Response, render_template
 import numpy as np
 import time
 import os
@@ -8,6 +9,12 @@ import random
 #########
 # put startDrawing cursor to 0 when ever our finger position changes from up to down or anything if constant keep it same (for later ignore for now)
 ##
+win = Flask(__name__)
+
+
+@win.route('/')
+def index():
+    return render_template('index.html')
 
 
 class RedLight_GreenLight():
@@ -66,6 +73,8 @@ class RedLight_GreenLight():
             self.image = cv2.bitwise_and(self.image, imgInv)
             self.image = cv2.bitwise_or(self.image, self.imgCanvas)
 
+            _, buffer = cv2.imencode('.jpg', self.image)
+            self.image = buffer.tobytes()
             # for exiting purpose
             k = cv2.waitKey(1) & 0xff
             if k == 27:
@@ -74,7 +83,8 @@ class RedLight_GreenLight():
                 break
 
             # it'll return self.image toflask app
-            return self.image
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + self.image + b'\r\n')
 
     def initializing(self):
         self.hand = htm.handDetector(maxHands=1)  # detector variable
@@ -161,7 +171,13 @@ class RedLight_GreenLight():
 
 if __name__ == '__main__':
     user1 = RedLight_GreenLight()
-    user1.start()
+
+    @win.route('/video_feed')
+    def video_feed():
+        return Response(user1.start(),
+                        mimetype='multipart/x-mixed-replace; boundary=frame')
+
+    win.run(debug=True)
 
 # #######################
 # brushThickness = 8
