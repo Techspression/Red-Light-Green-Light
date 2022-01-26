@@ -1,11 +1,27 @@
 import cv2
 from flask import Flask, Response, render_template
+from matplotlib.pyplot import contour
 import numpy as np
 import time
 import os
 import HandTrackingModule as htm
 import random
 
+
+def empty():
+    pass
+
+
+cv2.namedWindow("Parameters")
+cv2.resizeWindow("Parameters", 640, 240)
+cv2.createTrackbar("Threshold1", "Parameters", 23, 255, empty)
+cv2.createTrackbar("Threshold2", "Parameters", 20, 255, empty)
+cv2.createTrackbar("Area", "Parameters", 5000, 30000, empty)
+####### Rules for drawing
+# to move use make sure your palm is open
+# to draw make sure just your index finger is open
+# to erase make sure just your thumn and index finger is open
+####
 #########
 # put startDrawing cursor to 0 when ever our finger position changes from up to down or anything if constant keep it same (for later ignore for now)
 ##
@@ -40,10 +56,11 @@ class RedLight_GreenLight():
             self.changeLight()
 
             success, self.image = cam.read()
-            self.image = cv2.flip(self.image, 1)
 
             if not success:
                 break
+
+            self.image = cv2.flip(self.image, 1)
 
             frameCount += 1
             fgmask = self.motion.apply(self.image)
@@ -63,18 +80,30 @@ class RedLight_GreenLight():
                 self.modes(fingers)
 
             else:
-                print("Hand didn't detect.")
+                # print("Hand didn't detect.")
+                pass
                 # break
 
+            gray = cv2.cvtColor(self.imgCanvas, cv2.COLOR_BGR2GRAY)
             imgInv = cv2.cvtColor(
-                cv2.threshold(cv2.cvtColor(self.imgCanvas, cv2.COLOR_BGR2GRAY),
-                              50, 255, cv2.THRESH_BINARY_INV)[1],
+                cv2.threshold(gray, 50, 255, cv2.THRESH_BINARY_INV)[1],
                 cv2.COLOR_GRAY2BGR)
             self.image = cv2.bitwise_and(self.image, imgInv)
             self.image = cv2.bitwise_or(self.image, self.imgCanvas)
 
-            _, buffer = cv2.imencode('.jpg', self.image)
-            self.image = buffer.tobytes()
+            mgBlur = cv2.GaussianBlur(self.imgCanvas, (7, 7), 1)
+            imgGray = cv2.cvtColor(mgBlur, cv2.COLOR_BGR2GRAY)
+            threshold1 = cv2.getTrackbarPos("Threshold1", "Parameters")
+            threshold2 = cv2.getTrackbarPos("Threshold2", "Parameters")
+            self.imgCanny = cv2.Canny(imgGray, threshold1, threshold2)
+            kernel = np.ones((5, 5))
+            imgDil = cv2.dilate(self.imgCanny, kernel, iterations=1)
+            self.drawContour(imgDil, self.imgCanny)
+            cv2.imshow("Image", self.image)
+            cv2.imshow("Drawing", self.imgCanny)
+
+            # _, buffer = cv2.imencode('.jpg', self.image)
+            # self.image = buffer.tobytes()
             # for exiting purpose
             k = cv2.waitKey(1) & 0xff
             if k == 27:
@@ -83,8 +112,8 @@ class RedLight_GreenLight():
                 break
 
             # it'll return self.image toflask app
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + self.image + b'\r\n')
+            # yield (b'--frame\r\n'
+            #        b'Content-Type: image/jpeg\r\n\r\n' + self.image + b'\r\n')
 
     def initializing(self):
         self.hand = htm.handDetector(maxHands=1)  # detector variable
@@ -120,13 +149,18 @@ class RedLight_GreenLight():
                             cv2.LINE_AA)
 
     def modes(self, fingers):
-        # for moving
-        if fingers[1] and fingers[2] and all(x == False for x in fingers[3:]):
+        #new Moving
+        if all(x == True for x in fingers):
             self.startDrawingPosition = 0, 0
 
-        # for Erasing
-        elif all(x == True for x in fingers[:2]) and all(x == False
-                                                         for x in fingers[2:]):
+        # for moving
+        # if fingers[1] and fingers[2] and all(x == False for x in fingers[3:]):
+        #     self.startDrawingPosition = 0, 0
+
+        # new Erasing
+        elif fingers[0] and fingers[1]:
+            if self.startDrawingPosition == (0, 0):
+                self.startDrawingPosition = self.currentDrawingPosition
             self.color = (0, 0, 0)
             cv2.circle(self.image, self.currentDrawingPosition, 15, self.color,
                        cv2.FILLED)
@@ -139,9 +173,26 @@ class RedLight_GreenLight():
                      self.eraserThickness)
 
             self.startDrawingPosition = self.currentDrawingPosition
+        # for Erasing
+        # elif all(x == True for x in fingers[:2]) and all(x == False
+        #                                                  for x in fingers[2:]):
+        #     if self.startDrawingPosition == (0, 0):
+        #         self.startDrawingPosition = self.currentDrawingPosition
+        #     self.color = (0, 0, 0)
+        #     cv2.circle(self.image, self.currentDrawingPosition, 15, self.color,
+        #                cv2.FILLED)
 
-        # for drawing
-        elif (fingers[1] and all(x == False for x in fingers[2:])):
+        #     cv2.line(self.image, self.startDrawingPosition,
+        #              self.currentDrawingPosition, self.color,
+        #              self.eraserThickness)
+        #     cv2.line(self.imgCanvas, self.startDrawingPosition,
+        #              self.currentDrawingPosition, self.color,
+        #              self.eraserThickness)
+
+        #     self.startDrawingPosition = self.currentDrawingPosition
+
+        #new Drawing
+        elif fingers[1]:
             self.color = (255, 0, 255)
             if self.startDrawingPosition == (0, 0):
                 self.startDrawingPosition = self.currentDrawingPosition
@@ -158,26 +209,58 @@ class RedLight_GreenLight():
 
             self.startDrawingPosition = self.currentDrawingPosition
 
-        elif all(x == True for x in fingers):
-            self.eraser = not self.eraser
-            if self.eraser:
-                self.imgCanvas = np.zeros((720, 1280, 3), np.uint8)
+        # for drawing
+        # elif (fingers[1] and all(x == False for x in fingers[2:])):
+        #     self.color = (255, 0, 255)
+        #     if self.startDrawingPosition == (0, 0):
+        #         self.startDrawingPosition = self.currentDrawingPosition
+
+        #     cv2.circle(self.image, self.currentDrawingPosition, 15, self.color,
+        #                cv2.FILLED)
+
+        #     cv2.line(self.image, self.startDrawingPosition,
+        #              self.currentDrawingPosition, self.color,
+        #              self.brushThickness)
+        #     cv2.line(self.imgCanvas, self.startDrawingPosition,
+        #              self.currentDrawingPosition, self.color,
+        #              self.brushThickness)
+
+        #     self.startDrawingPosition = self.currentDrawingPosition
+
+        # elif all(x == True for x in fingers):
+        #     self.startDrawingPosition = self.currentDrawingPosition
+        #     self.eraser = not self.eraser
+        #     if self.eraser:
+        #         self.imgCanvas = np.zeros((720, 1280, 3), np.uint8)
 
         else:
             # for all finger close check
             # print(self.color)
             pass
 
+    def drawContour(self, grayImage, mainImage):
+        contours, hierarchy = cv2.findContours(grayImage, cv2.RETR_EXTERNAL,
+                                               cv2.CHAIN_APPROX_NONE)
+
+        # print(contours)
+        for cnt in contours:
+            peri = cv2.arcLength(cnt, True)
+            approx = cv2.approxPolyDP(cnt, 0.02 * peri, True)
+            print(len(approx))
+            x, y, w, h = cv2.boundingRect(approx)
+            print(x, y, w, h)
+            #cv2.rectangle(mainImage, (x, y), (x + w, y + h), (0, 255, 0), 5)
+
 
 if __name__ == '__main__':
     user1 = RedLight_GreenLight()
+    user1.start()
+    # @win.route('/video_feed')
+    # def video_feed():
+    #     return Response(user1.start(),
+    #                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
-    @win.route('/video_feed')
-    def video_feed():
-        return Response(user1.start(),
-                        mimetype='multipart/x-mixed-replace; boundary=frame')
-
-    win.run(debug=True)
+    # win.run(debug=True)
 
 # #######################
 # brushThickness = 8
