@@ -7,16 +7,6 @@ import os
 import HandTrackingModule as htm
 import random
 
-
-def empty():
-    pass
-
-
-cv2.namedWindow("Parameters")
-cv2.resizeWindow("Parameters", 640, 240)
-cv2.createTrackbar("Threshold1", "Parameters", 23, 255, empty)
-cv2.createTrackbar("Threshold2", "Parameters", 20, 255, empty)
-cv2.createTrackbar("Area", "Parameters", 5000, 30000, empty)
 ####### Rules for drawing
 # to move use make sure your palm is open
 # to draw make sure just your index finger is open
@@ -84,23 +74,21 @@ class RedLight_GreenLight():
                 pass
                 # break
 
-            gray = cv2.cvtColor(self.imgCanvas, cv2.COLOR_BGR2GRAY)
+            self.gray = cv2.cvtColor(self.imgCanvas, cv2.COLOR_BGR2GRAY)
             imgInv = cv2.cvtColor(
-                cv2.threshold(gray, 50, 255, cv2.THRESH_BINARY_INV)[1],
+                cv2.threshold(self.gray, 50, 255, cv2.THRESH_BINARY_INV)[1],
                 cv2.COLOR_GRAY2BGR)
             self.image = cv2.bitwise_and(self.image, imgInv)
             self.image = cv2.bitwise_or(self.image, self.imgCanvas)
 
-            mgBlur = cv2.GaussianBlur(self.imgCanvas, (7, 7), 1)
-            imgGray = cv2.cvtColor(mgBlur, cv2.COLOR_BGR2GRAY)
-            threshold1 = cv2.getTrackbarPos("Threshold1", "Parameters")
-            threshold2 = cv2.getTrackbarPos("Threshold2", "Parameters")
-            self.imgCanny = cv2.Canny(imgGray, threshold1, threshold2)
-            kernel = np.ones((5, 5))
-            imgDil = cv2.dilate(self.imgCanny, kernel, iterations=1)
-            self.drawContour(imgDil, self.imgCanny)
+            # if (not np.all((self.imgCanvas == np.zeros(
+            #     (720, 1280, 3), np.uint8)))):
+            #     self.imgCanny = cv2.Canny(gray, 23, 20)
+            #     kernel = np.ones((5, 5))
+            #     imgDil = cv2.dilate(self.imgCanny, kernel, iterations=1)
+            #     self.drawContour(imgDil, self.imgCanny)
+            # cv2.imshow("Drawing", self.imgCanny)
             cv2.imshow("Image", self.image)
-            cv2.imshow("Drawing", self.imgCanny)
 
             # _, buffer = cv2.imencode('.jpg', self.image)
             # self.image = buffer.tobytes()
@@ -152,6 +140,12 @@ class RedLight_GreenLight():
         #new Moving
         if all(x == True for x in fingers):
             self.startDrawingPosition = 0, 0
+            if (not np.all((self.imgCanvas == np.zeros(
+                (720, 1280, 3), np.uint8)))):
+                self.imgCanny = cv2.Canny(self.gray, 23, 20)
+                kernel = np.ones((5, 5))
+                imgDil = cv2.dilate(self.imgCanny, kernel, iterations=1)
+                self.drawContour(imgDil, self.imgCanny)
 
         # for moving
         # if fingers[1] and fingers[2] and all(x == False for x in fingers[3:]):
@@ -238,6 +232,20 @@ class RedLight_GreenLight():
             # print(self.color)
             pass
 
+    def checkShape(self, a):
+
+        a = [x[0] for x in a]
+        acopy = a
+        for x in range(len(a) - 1):
+            data = ([
+                i for i in a[x + 1:]
+                if (a[x][0] + 100 > i[0] and a[x][0] - 100 < i[0])
+                and a[x][1] + 100 > i[1] and a[x][1] - 100 < i[1]
+            ])
+            if len(data) > 0:
+                acopy.remove(data[0])
+        return acopy
+
     def drawContour(self, grayImage, mainImage):
         contours, hierarchy = cv2.findContours(grayImage, cv2.RETR_EXTERNAL,
                                                cv2.CHAIN_APPROX_NONE)
@@ -246,9 +254,13 @@ class RedLight_GreenLight():
         for cnt in contours:
             peri = cv2.arcLength(cnt, True)
             approx = cv2.approxPolyDP(cnt, 0.02 * peri, True)
-            print(len(approx))
-            x, y, w, h = cv2.boundingRect(approx)
-            print(x, y, w, h)
+            data = approx.tolist()
+            #atleast checking it's having 2 cooridnates
+            if (len(data) >= 2):
+                points = self.checkShape(data)
+                print(points)
+                # print(len(points))
+            # x, y, w, h = cv2.boundingRect(approx)
             #cv2.rectangle(mainImage, (x, y), (x + w, y + h), (0, 255, 0), 5)
 
 
