@@ -7,7 +7,7 @@ import os
 import HandTrackingModule as htm
 import random
 
-####### Rules for drawing
+# Rules for drawing
 # to move use make sure your palm is open
 # to draw make sure just your index finger is open
 # to erase make sure just your thumn and index finger is open
@@ -88,6 +88,7 @@ class RedLight_GreenLight():
             #     imgDil = cv2.dilate(self.imgCanny, kernel, iterations=1)
             #     self.drawContour(imgDil, self.imgCanny)
             # cv2.imshow("Drawing", self.imgCanny)
+
             cv2.imshow("Image", self.image)
 
             # _, buffer = cv2.imencode('.jpg', self.image)
@@ -101,7 +102,7 @@ class RedLight_GreenLight():
 
             # it'll return self.image toflask app
             # yield (b'--frame\r\n'
-            #        b'Content-Type: image/jpeg\r\n\r\n' + self.image + b'\r\n')
+            #         b'Content-Type: image/jpeg\r\n\r\n' + self.image + b'\r\n')
 
     def initializing(self):
         self.hand = htm.handDetector(maxHands=1)  # detector variable
@@ -137,11 +138,11 @@ class RedLight_GreenLight():
                             cv2.LINE_AA)
 
     def modes(self, fingers):
-        #new Moving
+        # new Moving
         if all(x == True for x in fingers):
             self.startDrawingPosition = 0, 0
             if (not np.all((self.imgCanvas == np.zeros(
-                (720, 1280, 3), np.uint8)))):
+                    (720, 1280, 3), np.uint8)))):
                 self.imgCanny = cv2.Canny(self.gray, 23, 20)
                 kernel = np.ones((5, 5))
                 imgDil = cv2.dilate(self.imgCanny, kernel, iterations=1)
@@ -185,7 +186,7 @@ class RedLight_GreenLight():
 
         #     self.startDrawingPosition = self.currentDrawingPosition
 
-        #new Drawing
+        # new Drawing
         elif fingers[1]:
             self.color = (255, 0, 255)
             if self.startDrawingPosition == (0, 0):
@@ -255,11 +256,16 @@ class RedLight_GreenLight():
             peri = cv2.arcLength(cnt, True)
             approx = cv2.approxPolyDP(cnt, 0.02 * peri, True)
             data = approx.tolist()
-            #atleast checking it's having 2 cooridnates
+            # atleast checking it's having 2 cooridnates
             if (len(data) >= 2):
                 points = self.checkShape(data)
-                print(points)
-                # print(len(points))
+                # count the number of points
+                ls = len(points)
+                # printing name of the Shape
+                cv2.putText(self.image, ("line" if ls == 2 else "Triangle" if ls == 3 else " Sqaure" if ls == 4 else "Circle"),
+                            (1100, 250), cv2.FONT_HERSHEY_SIMPLEX, 1,
+                            (48, 49, 148), 2, cv2.LINE_AA)
+
             # x, y, w, h = cv2.boundingRect(approx)
             #cv2.rectangle(mainImage, (x, y), (x + w, y + h), (0, 255, 0), 5)
 
