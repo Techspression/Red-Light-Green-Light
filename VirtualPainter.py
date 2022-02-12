@@ -142,7 +142,7 @@ class RedLight_GreenLight():
         if all(x == True for x in fingers):
             self.startDrawingPosition = 0, 0
             if (not np.all((self.imgCanvas == np.zeros(
-                    (720, 1280, 3), np.uint8)))):
+                (720, 1280, 3), np.uint8)))):
                 self.imgCanny = cv2.Canny(self.gray, 23, 20)
                 kernel = np.ones((5, 5))
                 imgDil = cv2.dilate(self.imgCanny, kernel, iterations=1)
@@ -168,6 +168,7 @@ class RedLight_GreenLight():
                      self.eraserThickness)
 
             self.startDrawingPosition = self.currentDrawingPosition
+
         # for Erasing
         # elif all(x == True for x in fingers[:2]) and all(x == False
         #                                                  for x in fingers[2:]):
@@ -234,17 +235,20 @@ class RedLight_GreenLight():
             pass
 
     def checkShape(self, a):
-
+        # (a[x][0] + 100 > i[0] and a[x][0] - 100 < i[0]) --> it check wheather it lies in less or more 100 in x axis
+        # (a[x][1] + 100 > i[1] and a[x][1] - 100 < i[1]) --> it check wheather it lies in less or more 100 in y axis
+        # a[x]!=i and a[x] in acopy -> it make sure that it doesn't delete itself and valid number(Present in acopy) is deleting the data.
         a = [x[0] for x in a]
         acopy = a
         for x in range(len(a) - 1):
             data = ([
-                i for i in a[x + 1:]
-                if (a[x][0] + 100 > i[0] and a[x][0] - 100 < i[0])
-                and a[x][1] + 100 > i[1] and a[x][1] - 100 < i[1]
+                i for i in acopy
+                if (a[x][0] + 100 > i[0] and a[x][0] - 100 < i[0]) and (
+                    a[x][1] + 100 > i[1] and a[x][1] - 100 < i[1]) and (
+                        a[x] != i and a[x] in acopy)
             ])
             if len(data) > 0:
-                acopy.remove(data[0])
+                acopy = [i for i in acopy if i not in data]
         return acopy
 
     def drawContour(self, grayImage, mainImage):
@@ -256,18 +260,22 @@ class RedLight_GreenLight():
             peri = cv2.arcLength(cnt, True)
             approx = cv2.approxPolyDP(cnt, 0.02 * peri, True)
             data = approx.tolist()
+            # print(data)
             # atleast checking it's having 2 cooridnates
             if (len(data) >= 2):
                 points = self.checkShape(data)
                 # count the number of points
                 ls = len(points)
                 # printing name of the Shape
-                cv2.putText(self.image, ("line" if ls == 2 else "Triangle" if ls == 3 else " Sqaure" if ls == 4 else "Circle"),
+                cv2.putText(self.image, "" * 15, (1100, 250),
+                            cv2.FONT_HERSHEY_SIMPLEX, 1, (48, 49, 148), 2,
+                            cv2.LINE_AA)
+                cv2.putText(self.image,
+                            ("line" if ls == 2 else
+                             ("Triangle" if ls == 3 else
+                              (" Sqaure" if ls == 4 else "Can't Identify"))),
                             (1100, 250), cv2.FONT_HERSHEY_SIMPLEX, 1,
                             (48, 49, 148), 2, cv2.LINE_AA)
-
-            # x, y, w, h = cv2.boundingRect(approx)
-            #cv2.rectangle(mainImage, (x, y), (x + w, y + h), (0, 255, 0), 5)
 
 
 if __name__ == '__main__':
