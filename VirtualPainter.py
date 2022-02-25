@@ -89,10 +89,10 @@ class RedLight_GreenLight():
             #     self.drawContour(imgDil, self.imgCanny)
             # cv2.imshow("Drawing", self.imgCanny)
 
-            cv2.imshow("Image", self.image)
+            # cv2.imshow("Image", self.image)
 
-            # _, buffer = cv2.imencode('.jpg', self.image)
-            # self.image = buffer.tobytes()
+            _, buffer = cv2.imencode('.jpg', self.image)
+            self.image = buffer.tobytes()
             # for exiting purpose
             k = cv2.waitKey(1) & 0xff
             if k == 27:
@@ -101,8 +101,8 @@ class RedLight_GreenLight():
                 break
 
             # it'll return self.image toflask app
-            # yield (b'--frame\r\n'
-            #         b'Content-Type: image/jpeg\r\n\r\n' + self.image + b'\r\n')
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + self.image + b'\r\n')
 
     def initializing(self):
         self.hand = htm.handDetector(maxHands=1)  # detector variable
@@ -117,7 +117,7 @@ class RedLight_GreenLight():
 
     def changeLight(self):
         if (self.resetTimer == 0):
-            self.resetTimer = random.randint(20, 35)
+            self.resetTimer = random.randint(10, 20) * 30
             self.currentLight = not self.currentLight
         else:
             self.resetTimer -= 1
@@ -128,12 +128,16 @@ class RedLight_GreenLight():
                     ((0, 255, 0) if self.currentLight else
                      (0, 0, 255)), 2, cv2.LINE_AA)
 
-    def alertWarning(self, frameCount, count):
+    def alertWarning(
+        self,
+        frameCount,
+        count,
+    ):
         #print('Frame: %d, Pixel Count: %d' % (frameCount, count))
         if self.currentLight == False:
             if (frameCount > 1 and count > 5000):
                 # print('Halu nkos bhava')
-                cv2.putText(self.image, 'Halu nkos bhava', (10, 50),
+                cv2.putText(self.image, 'Dont move too much', (10, 50),
                             cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2,
                             cv2.LINE_AA)
 
@@ -205,33 +209,8 @@ class RedLight_GreenLight():
 
             self.startDrawingPosition = self.currentDrawingPosition
 
-        # for drawing
-        # elif (fingers[1] and all(x == False for x in fingers[2:])):
-        #     self.color = (255, 0, 255)
-        #     if self.startDrawingPosition == (0, 0):
-        #         self.startDrawingPosition = self.currentDrawingPosition
-
-        #     cv2.circle(self.image, self.currentDrawingPosition, 15, self.color,
-        #                cv2.FILLED)
-
-        #     cv2.line(self.image, self.startDrawingPosition,
-        #              self.currentDrawingPosition, self.color,
-        #              self.brushThickness)
-        #     cv2.line(self.imgCanvas, self.startDrawingPosition,
-        #              self.currentDrawingPosition, self.color,
-        #              self.brushThickness)
-
-        #     self.startDrawingPosition = self.currentDrawingPosition
-
-        # elif all(x == True for x in fingers):
-        #     self.startDrawingPosition = self.currentDrawingPosition
-        #     self.eraser = not self.eraser
-        #     if self.eraser:
-        #         self.imgCanvas = np.zeros((720, 1280, 3), np.uint8)
-
         else:
             # for all finger close check
-            # print(self.color)
             pass
 
     def checkShape(self, a):
@@ -281,12 +260,13 @@ class RedLight_GreenLight():
 if __name__ == '__main__':
     user1 = RedLight_GreenLight()
     user1.start()
-    # @win.route('/video_feed')
-    # def video_feed():
-    #     return Response(user1.start(),
-    #                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
-    # win.run(debug=True)
+    @win.route('/video_feed')
+    def video_feed():
+        return Response(user1.start(),
+                        mimetype='multipart/x-mixed-replace; boundary=frame')
+
+    win.run(debug=True)
 
 # #######################
 # brushThickness = 8
