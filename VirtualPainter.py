@@ -36,7 +36,6 @@ class RedLight_GreenLight():
         self.currentDrawingPosition = (0, 0)  # x1,y1 variable
 
     def start(self):
-
         cam = self.getCAM()
         self.initializing()
 
@@ -100,6 +99,15 @@ class RedLight_GreenLight():
                 cv2.destroyAllWindows()
                 break
 
+            ####
+            # transer count veriable to our index.html page
+            count += 1
+            if (count % self.fps == 0):
+                # if this happen you should pass the count veriable to our website
+                count = 0
+                ## try to pass with the below yield if multiple parameter is possible passing with response.
+                pass
+
             # it'll return self.image toflask app
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + self.image + b'\r\n')
@@ -111,6 +119,7 @@ class RedLight_GreenLight():
 
     def getCAM(self):
         cap = cv2.VideoCapture(0)  # for single camera devices.
+        self.fps = cap.get(cv2.CAP_PROP_FPS)
         cap.set(3, 1280)
         cap.set(4, 720)
         return cap
@@ -259,7 +268,7 @@ class RedLight_GreenLight():
 
 if __name__ == '__main__':
     user1 = RedLight_GreenLight()
-    user1.start()
+    # user1.start()
 
     @win.route('/video_feed')
     def video_feed():
