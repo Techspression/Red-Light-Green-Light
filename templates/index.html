@@ -142,13 +142,13 @@
   <script>
     let display=document.getElementById("countDown")
     console.log(display)
-    let i=60
+    let i=360
     const timer=setInterval(()=>{
       --i
       display.innerHTML=Math.floor(i/60)+" : "+i%60
       if(i===0)
       {
-        display.innerHTML="Stooped"
+        display.innerHTML="Stopped"
         clearInterval(timer)
       }
     },1000)

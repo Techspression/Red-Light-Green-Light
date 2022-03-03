@@ -54,7 +54,7 @@ class RedLight_GreenLight():
             frameCount += 1
             fgmask = self.motion.apply(self.image)
             count = np.count_nonzero(fgmask)
-            self.alertWarning(frameCount, count)
+            stop = self.alertWarning(frameCount, count,cam)
 
             self.showState()
 
@@ -94,7 +94,7 @@ class RedLight_GreenLight():
             self.image = buffer.tobytes()
             # for exiting purpose
             k = cv2.waitKey(1) & 0xff
-            if k == 27:
+            if k == 27 or stop==1:
                 cam.release()
                 cv2.destroyAllWindows()
                 break
@@ -126,7 +126,7 @@ class RedLight_GreenLight():
 
     def changeLight(self):
         if (self.resetTimer == 0):
-            self.resetTimer = random.randint(10, 20) * 30
+            self.resetTimer = random.randint(10, 20) * 30  # 30 tha
             self.currentLight = not self.currentLight
         else:
             self.resetTimer -= 1
@@ -141,14 +141,21 @@ class RedLight_GreenLight():
         self,
         frameCount,
         count,
+        camera
     ):
         #print('Frame: %d, Pixel Count: %d' % (frameCount, count))
         if self.currentLight == False:
-            if (frameCount > 1 and count > 5000):
+            if (frameCount > 1 and count > 15000):
                 # print('Halu nkos bhava')
+                
                 cv2.putText(self.image, 'Dont move too much', (10, 50),
                             cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2,
                             cv2.LINE_AA)
+                
+                return 1
+            else : return 0              
+        else : return 0       
+                                
 
     def modes(self, fingers):
         # new Moving
@@ -221,6 +228,7 @@ class RedLight_GreenLight():
         else:
             # for all finger close check
             pass
+    detect_shape=""
 
     def checkShape(self, a):
         # (a[x][0] + 100 > i[0] and a[x][0] - 100 < i[0]) --> it check wheather it lies in less or more 100 in x axis
@@ -258,12 +266,8 @@ class RedLight_GreenLight():
                 cv2.putText(self.image, "" * 15, (1100, 250),
                             cv2.FONT_HERSHEY_SIMPLEX, 1, (48, 49, 148), 2,
                             cv2.LINE_AA)
-                cv2.putText(self.image,
-                            ("line" if ls == 2 else
-                             ("Triangle" if ls == 3 else
-                              (" Sqaure" if ls == 4 else "Can't Identify"))),
-                            (1100, 250), cv2.FONT_HERSHEY_SIMPLEX, 1,
-                            (48, 49, 148), 2, cv2.LINE_AA)
+                
+                self.detect_shape="line" if ls==2 else ("Tringle" if ls==3 else ("Square" if ls==4 else "Try Again"))
                 print(ls)
 
 
