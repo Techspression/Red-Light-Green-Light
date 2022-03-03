@@ -18,7 +18,7 @@
     nav{
         background: #0082e6;
         height: 80px;
-        width: 100%;
+        width: 50%;
         color: white;
     }
     nav ul{
@@ -37,14 +37,9 @@
         border-radius:3px;
         text-transform: uppercase;
     }
-    a.active,a:hover{
-        background: #1b9bff;
-        transition: .5s;
-    }
     
         .navigation 
     {
-        position:fixed;
         inset: 20px 0px 20px 20px;
         margin-top: 90px;
         width: 700px;
@@ -52,29 +47,33 @@
     }
     .M21
     {
-        background: #e4e0e3;
-        position: relative;
-        left:1300px;
-        top:100px;
+      background: #e4e0e3;
+      /* padding-top: 55%; */
+      margin-top: 40%;
+      width: 170px;
+      height: 100px;
+       
+    }
+    .right{
+      float: right;
+      padding-left: 70%;
+    }
+    .M13
+    {
+      background: #bb0f90;
+      margin-top: 60%;
        width: 170px;
        height: 100px;
        
     }
-    .M13
+    .down
     {
-        background: #bb0f90;
-        position: relative;
-        left:1300px;
-        top:300px;
-       width: 170px;
-       height: 100px;
-       
+      padding-top: 6%;
     }
     .child {
        /* Center horizontally */
       position: absolute;
-      top: 20%;
-      left: 20%;
+      padding-left: 15%;
       margin: -25px 0 0 -25px;
     } 
   </style>
@@ -86,16 +85,30 @@
   
 </head>
 <body>
-    <div class="navigation">
-      <div class="child">
-        <img src="{{url_for( 'video_feed')}}"style="width: 800px; height=1200px;" alt="This is WebCam" />
-      </div>
-    <div class="M21">shape</div>
-    <div class="M13">point</div>
+  <div class="main">
+    <div class="top">
+      <p id="countDown" style="float:right;font-size: 85px;font-weight: bold;padding-top: 1%;">5:00</p></li>
     </div>
-        <nav>
-            <li><p id="countDown">5:00</p></li>
-</nav>
+    <div class="down">
+
+        <div class="left">
+          <div class="navigation">
+            <div class="child">
+              <img src="{{url_for( 'video_feed')}}"style="width: 800px; height=1200px;" alt="This is WebCam" />
+            </div>
+          </div>
+        </div>
+        <div class="right">
+          <div class="M21">
+            <h1>
+              shape
+            </h1></div>
+          <div class="M13">
+            <h1>point</h1>
+          </div>
+        </div>
+      </div>
+    </div>
 <!-- </body> -->
 <!-- <body> -->
   

@@ -1,6 +1,4 @@
 *{
-    margin: 0;
-    padding: 0;
     text-decoration: none;
     list-style: none;
     box-sizing: border-box;
@@ -64,10 +62,10 @@
        height: 100px;
        
     }
-    /* .child {
-       Center horizontally
+     /* .child {
+        Center horizontally
       position: absolute;
-      top: 20%;
+      top: 40%;
       left: 20%;
       margin: -25px 0 0 -25px;
-    } */
+    }  */

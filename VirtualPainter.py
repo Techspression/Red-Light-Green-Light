@@ -264,6 +264,7 @@ class RedLight_GreenLight():
                               (" Sqaure" if ls == 4 else "Can't Identify"))),
                             (1100, 250), cv2.FONT_HERSHEY_SIMPLEX, 1,
                             (48, 49, 148), 2, cv2.LINE_AA)
+                print(ls)
 
 
 if __name__ == '__main__':
