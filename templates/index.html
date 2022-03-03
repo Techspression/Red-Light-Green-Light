@@ -3,33 +3,111 @@
 
 <html lang="en">
 <head>
-  <style type="text/css">
+  <style>
+    *{
+    margin: 0;
+    padding: 0;
+    text-decoration: none;
+    list-style: none;
+    box-sizing: border-box;
+    }
+    body{
+        font-family: montserrat;
+        background: #3d3d3d;
+    }
+    nav{
+        background: #0082e6;
+        height: 80px;
+        width: 100%;
+        color: white;
+    }
+    nav ul{
+        float: right;
+        margin-right: 20px;
+    }
+    nav ul li{
+        display: inline-block;
+        line-height: 80px;
+        margin: 0 5px;
+    }
+    nav ul li a{
+        color: white;
+        font: size 17px;
+        padding: 7px 13px;
+        border-radius:3px;
+        text-transform: uppercase;
+    }
+    a.active,a:hover{
+        background: #1b9bff;
+        transition: .5s;
+    }
+    
+        .navigation 
+    {
+        position:fixed;
+        inset: 20px 0px 20px 20px;
+        margin-top: 90px;
+        width: 700px;
+        background: #fff;
+    }
+    .M21
+    {
+        background: #e4e0e3;
+        position: relative;
+        left:1300px;
+        top:100px;
+       width: 170px;
+       height: 100px;
+       
+    }
+    .M13
+    {
+        background: #bb0f90;
+        position: relative;
+        left:1300px;
+        top:300px;
+       width: 170px;
+       height: 100px;
+       
+    }
     .child {
-      /* Center horizontally*/
+       /* Center horizontally */
       position: absolute;
       top: 20%;
       left: 20%;
       margin: -25px 0 0 -25px;
-    }
+    } 
   </style>
+  <!-- <link rel="stylesheet" href="box.css"> -->
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Web Cam</title>
+  
 </head>
 <body>
+    <div class="navigation">
+      <div class="child">
+        <img src="{{url_for( 'video_feed')}}"style="width: 800px; height=1200px;" alt="This is WebCam" />
+      </div>
+    <div class="M21">shape</div>
+    <div class="M13">point</div>
+    </div>
+        <nav>
+            <li><p id="countDown">5:00</p></li>
+</nav>
+<!-- </body> -->
+<!-- <body> -->
   
   <!--Countdown div-->
-  <div class="timer">
+  <!-- <div class="timer">
     <p id="countDown">5:00</p>
   </div>
-  <script src="script.js"></script>
-  
   
       <h3 style="text-align: center;">Live Streaming</h3>
       <div class="child">
         <img src="{{url_for( 'video_feed')}}"style="width: 800px; height=1200px;" alt="This is WebCam" />
-      </div>
+      </div> -->
   
 
 
@@ -48,6 +126,19 @@
 
   done -->
 
-  
+  <script>
+    let display=document.getElementById("countDown")
+    console.log(display)
+    let i=60
+    const timer=setInterval(()=>{
+      --i
+      display.innerHTML=Math.floor(i/60)+" : "+i%60
+      if(i===0)
+      {
+        display.innerHTML="Stooped"
+        clearInterval(timer)
+      }
+    },1000)
+  </script>
 </body>
 </html>
