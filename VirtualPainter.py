@@ -17,10 +17,9 @@ import random
 ##
 win = Flask(__name__)
 
-
-@win.route('/')
-def index():
-    return render_template('index.html')
+# @win.route('/')
+# def index():
+#     return render_template('index.html')
 
 
 class RedLight_GreenLight():
@@ -32,6 +31,8 @@ class RedLight_GreenLight():
         self.currentLight = False
         self.resetTimer = 15
         self.eraser = False
+        self.points = 0
+        self.shapes = None  #transfer this variable
         self.startDrawingPosition = (0, 0)  # storing co-ordinate value , xp,yp
         self.currentDrawingPosition = (0, 0)  # x1,y1 variable
 
@@ -54,7 +55,8 @@ class RedLight_GreenLight():
             frameCount += 1
             fgmask = self.motion.apply(self.image)
             count = np.count_nonzero(fgmask)
-            stop = self.alertWarning(frameCount, count,cam)
+            # stop = self.alertWarning(frameCount, count,cam)
+            stop = 0
 
             self.showState()
 
@@ -94,7 +96,7 @@ class RedLight_GreenLight():
             self.image = buffer.tobytes()
             # for exiting purpose
             k = cv2.waitKey(1) & 0xff
-            if k == 27 or stop==1:
+            if k == 27 or stop == 1:
                 cam.release()
                 cv2.destroyAllWindows()
                 break
@@ -137,25 +139,21 @@ class RedLight_GreenLight():
                     ((0, 255, 0) if self.currentLight else
                      (0, 0, 255)), 2, cv2.LINE_AA)
 
-    def alertWarning(
-        self,
-        frameCount,
-        count,
-        camera
-    ):
+    def alertWarning(self, frameCount, count, camera):
         #print('Frame: %d, Pixel Count: %d' % (frameCount, count))
         if self.currentLight == False:
             if (frameCount > 1 and count > 15000):
                 # print('Halu nkos bhava')
-                
+
                 cv2.putText(self.image, 'Dont move too much', (10, 50),
                             cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2,
                             cv2.LINE_AA)
-                
+
                 return 1
-            else : return 0              
-        else : return 0       
-                                
+            else:
+                return 0
+        else:
+            return 0
 
     def modes(self, fingers):
         # new Moving
@@ -228,7 +226,8 @@ class RedLight_GreenLight():
         else:
             # for all finger close check
             pass
-    detect_shape=""
+
+    detect_shape = ""
 
     def checkShape(self, a):
         # (a[x][0] + 100 > i[0] and a[x][0] - 100 < i[0]) --> it check wheather it lies in less or more 100 in x axis
@@ -266,9 +265,19 @@ class RedLight_GreenLight():
                 cv2.putText(self.image, "" * 15, (1100, 250),
                             cv2.FONT_HERSHEY_SIMPLEX, 1, (48, 49, 148), 2,
                             cv2.LINE_AA)
-                
-                self.detect_shape="line" if ls==2 else ("Tringle" if ls==3 else ("Square" if ls==4 else "Try Again"))
+                cv2.putText(
+                    self.image, "line" if ls == 2 else
+                    ("Tringle" if ls == 3 else
+                     ("Square" if ls == 4 else "Try Again")), (1100, 250),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1, (48, 49, 148), 2, cv2.LINE_AA)
+
+                self.detect_shape = "line" if ls == 2 else (
+                    "Tringle" if ls == 3 else
+                    ("Square" if ls == 4 else "Try Again"))
+
                 print(ls)
+                if (ls in list(range(1, 4))):
+                    self.points += 1
 
 
 if __name__ == '__main__':
@@ -279,6 +288,15 @@ if __name__ == '__main__':
     def video_feed():
         return Response(user1.start(),
                         mimetype='multipart/x-mixed-replace; boundary=frame')
+
+    @win.route('/getPoints')
+    def getPoints():
+        # return str(user1.points)
+        return render_template("func.html", values=str(user1.points))
+
+    @win.route('/')
+    def index():
+        return render_template('index.html', values=user1.points)
 
     win.run(debug=True)
 

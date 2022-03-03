@@ -104,7 +104,7 @@
               shape
             </h1></div>
           <div class="M13">
-            <h1>point</h1>
+            <iframe id="naruto" src="{{url_for( 'getPoints')}}" width="100px" height="100px" frameBorder="0"></iframe>
           </div>
         </div>
       </div>
@@ -141,6 +141,8 @@
 
   <script>
     let display=document.getElementById("countDown")
+    // let frame=document.getElementById("naruto")
+
     console.log(display)
     let i=360
     const timer=setInterval(()=>{
@@ -151,7 +153,11 @@
         display.innerHTML="Stopped"
         clearInterval(timer)
       }
+      // for refreshing 
+      // frame.setAttribute("src","{{url_for( 'video_feed')}}")
     },1000)
+
+
   </script>
 </body>
 </html>
