@@ -293,6 +293,10 @@ if __name__ == '__main__':
     def getPoints():
         # return str(user1.points)
         return render_template("func.html", values=str(user1.points))
+    
+    @win.route('/getShapes')
+    def getShapes():
+        return render_template("getShapes.html", shapesValues=str(user1.shapes))
 
     @win.route('/')
     def index():
