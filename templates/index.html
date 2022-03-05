@@ -139,26 +139,76 @@
 
 
   done -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+  <script type="text/javascript" charset="utf-8">
+      var socket = io();
+      socket.on('connect', function() {
+          console.log("connected to socketio")
+          socket.emit('message', "Hello plss work");
+      });
+  </script>
+
+  <!-- This socket is use to provide when the function will start -->
+  <script type="text/javascript" charset="utf-8">
+    function onStart()
+    {
+      var socket = io();
+      socket.on('start', function() {
+          socket.emit('gameOn',"True");
+      });
+    }
+  </script>
 
   <script>
+    // start=new Date(2022, 4, 4, 1, 30, 0, 0)
+    // function preTimer(){
+      // now=Date.now()
+      
+      // dif=start-now
+      // alert(dif.getHours()+" "+dif.getMinutes()+" "+dif.getSeconds())
+      // return dif
+    // }
+    // function gameStart(){
+    //   --i
+    //   display.innerHTML=Math.floor(i/60)+" : "+ (i%60<10) ? "0"+i%60 : i%60
+    //   if(i===0)
+    //   {
+    //     display.innerHTML="Game Over"
+    //     clearInterval(timer)
+    //   }
+    // }
+
     let display=document.getElementById("countDown")
     // let frame=document.getElementById("naruto")
 
     console.log(display)
-    let i=360
+    let i=300
     const timer=setInterval(()=>{
-      --i
-      display.innerHTML=Math.floor(i/60)+" : "+i%60
-      if(i===0)
-      {
-        display.innerHTML="Stopped"
-        clearInterval(timer)
+      // if(preTimer()>0)
+      // {
+      //   preTimer()
+      // }
+      // else{
+      // }
+      // gameStart()
+      if(dif==0){
+        start=new Date(2022, 4, 4, 1, 30, 0, 0)
+        now=Date.now()
+        dif=start-now
+        alert(dif.getHours()+" "+dif.getMinutes()+" "+dif.getSeconds())
+      }
+      else{
+        --i
+        display.innerHTML=Math.floor(i/60)+":"+ ((i%60<10) ? "0"+i%60 : i%60)
+        if(i===0)
+        {
+          display.innerHTML="Game Over"
+          clearInterval(timer)
+        }
       }
       // for refreshing 
       // frame.setAttribute("src","{{url_for( 'video_feed')}}")
     },1000)
-
-
   </script>
 </body>
 </html>
